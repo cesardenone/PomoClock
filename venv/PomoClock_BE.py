@@ -1,5 +1,6 @@
 from tkinter import *
 import tkinter
+import time
 
 # cores
 cor1 = "#0a0a0a"  # black / preta
@@ -15,50 +16,38 @@ janela.geometry('310x180')
 janela.resizable(width=FALSE, height=FALSE)
 janela.configure(background=cor1)
 
-global tempo
-tempo = '00:00:00'
-
+global timer
+timer = '25:00'
+global run
 run = False
 
+def contador(): 
+   global timer
+   global run
+   tempo = 25 * 60
+   if timer != '00:00':
+      m, s = divmod(tempo, 60) 
+      timer = '{:02d}:{:02d}'.format(m, s)
+      label_time['font'] = 'Times 20 bold '
+      label_time['text'] = timer
 
-# Funcao iniciar
-def iniciar():
-   def valor():
-      global s
-      s = 0
-      if run and s <=59:
-         global tempo
-         label_time['font'] =  'Times 50 bold'
-         d = str(tempo)
-         h,m,s = map(int,d.split(":")) 
-         h = int(h)
-         m=int(m)
-         s= int(s)
+      m=int(m)
+      s=int(s)
 
-         if(s>=5):
-            m+=1
+      if s>=59:
+         m -=1
 
-         s=str(0)+str(s)
-         m=str(0)+str(m)
-         h=str(0)+str(h)
+      time.sleep (1)
+      s -= 1
 
-         d=str(h[-2:])+":"+str(m[-2:])+":"+str(s[-2:])
-         label_time['text'] = d
-         tempo = d
-
-         s= int(s)
-         m= int(m)
-         h= int(h)             
-
-         label_time.after(1000, valor)
-         s += 1
-   valor()
+      s=str(0)+str(s)
+      m=str(0)+str(m)
 
 # Funcao para iniciar
 def start():
    global run
    run = True
-   iniciar()
+   contador()
 
 # Funacao para pausar
 def stop():
@@ -72,9 +61,9 @@ def reset():
 
    # Se estiver pausado ira reiniciar do zero
    if run == False:
-       global tempo
+       global timer
        tempo = '00:00:00'
-       label_time['text'] = tempo
+       label_time['text'] = timer
 
    # Se nao estiver pausado ira continuar onde parou antes 
    else:
@@ -85,7 +74,7 @@ def reset():
 label_app = Label(janela, text='cronômetro', font=('Arial 10'), bg=cor1, fg=cor2)
 label_app.place(x=20,y=5)
 
-label_time = Label(janela, text=tempo, font=('Times 50 bold'), bg=cor1, fg=cor6)
+label_time = Label(janela, text=timer, font=('Times 50 bold'), bg=cor1, fg=cor6)
 label_time.grid(row=0, column=0, sticky=NSEW, padx=15, pady=20)
 
 label_app.lift()
