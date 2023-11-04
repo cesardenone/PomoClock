@@ -18,9 +18,12 @@ class PomodoroTimer:
         
         self.label = tk.Label(root, text="", font=("Helvetica", 48), bg="#fafcff")
         self.label.pack(padx=20, pady=30)
+
+        self.label_task = tk.Label(root, text="Digite a atividade:", font=("Helvetica", 10), bg="#fafcff")
+        self.label_task.place(x=88, y=110)
         
-        self.label_message = tk.Label(root, text="PomoClock", font=("Helvetica", 11), bg="#fafcff")
-        self.label_message.place(x=160, y=20)
+        self.entry_task = tk.Entry(root, font=("Helvetica", 10), bd=2, width=30, justify="left")
+        self.entry_task.place(x=88, y=140)
 
         self.start_button = tk.Button(root, text="Iniciar", command=self.start_timer, width=10, height=2, bg='#0a0a0a', fg="#fafcff", font=('Ivy 8 bold'))
         self.pause_button = tk.Button(root, text="Reiniciar", command=self.pause_timer, width=10, height=2, bg='#0a0a0a', fg="#fafcff", font=('Ivy 8 bold'))
@@ -43,9 +46,12 @@ class PomodoroTimer:
     def update_clock(self):
         if not self.is_running:
             self.label.config(text=self.get_time_text(self.work_time if self.is_working else self.break_time))
+            #self.label_message.config(text="Foco!")
+
         elif self.is_running:
             current_time = dt.datetime.now()
             time_difference = self.end_time - current_time
+
             
             if time_difference.total_seconds() <= 0:
                 self.is_running = False
@@ -62,20 +68,25 @@ class PomodoroTimer:
         self.end_time = dt.datetime.now() + (self.work_time if self.is_working else self.break_time)
         self.start_button.config(state=tk.DISABLED)
         self.pause_button.config(state=tk.NORMAL)
-        self.label_message.config(text = "Hora do Foco!")
+        self.task = self.entry_task.get()
 
         self.db_connect(    )
         self.hora_atual = dt.datetime.now()
-        self.sql_query = f"""INSERT INTO ATIVIDADES(HORA_INICIO, FOCO_PAUSA) VALUES ('{self.hora_atual}', 'FOCO')"""
+        self.sql_query = f"""INSERT INTO ATIVIDADES(HORA_INICIO, FOCO_REINICIO, ATIVIDADE) VALUES ('{self.hora_atual}', 'FOCO', '{self.task}')"""
         self.cursor = self.conn.cursor()
         self.cursor.execute(self.sql_query)
         self.cursor.commit()
+
         
     def pause_timer(self):
         self.is_running = False
         self.start_button.config(state=tk.NORMAL)
         self.pause_button.config(state=tk.DISABLED)
-        self.label_message.config(text="Cronômetro reiniciado")
+        self.sql_query = f"""INSERT INTO ATIVIDADES(HORA_REINICIO, FOCO_REINICIO) VALUES ('{self.hora_atual}', 'REINICIO')"""
+        self.cursor = self.conn.cursor()
+        self.cursor.execute(self.sql_query)
+        self.cursor.commit()
+        #self.label_message.config(text="Cronômetro reiniciado")
         
     def toggle_timer(self):
         if self.is_working:
