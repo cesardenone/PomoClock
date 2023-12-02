@@ -1,6 +1,7 @@
 import tkinter as tk
 import datetime as dt
 import pyodbc
+from winotify import Notification
 
 class PomodoroTimer:
     def __init__(self, root):
@@ -33,6 +34,9 @@ class PomodoroTimer:
         
         self.update_clock()
 
+        self.notification1 = Notification(app_id="Pomoclock", title="Vamos lá!", msg="Relógio iniciado!", duration="short", icon=r"C:\Users\cesar\Documents\GitHub\PomoClock\venv\icon.ico")
+        self.notification2 = Notification(app_id="Pomoclock", title="Atenção!", msg="Verifique seu Pomoclock!", duration="short", icon=r"C:\Users\cesar\Documents\GitHub\PomoClock\venv\icon.ico")
+
     def db_connect(self):
         self.SERVER = 'DESKTOP-3R9MF7L'
         self.DATABASE = 'POMOCLOCK'
@@ -46,13 +50,11 @@ class PomodoroTimer:
     def update_clock(self):
         if not self.is_running:
             self.label.config(text=self.get_time_text(self.work_time if self.is_working else self.break_time))
-            #self.label_message.config(text="Foco!")
 
         elif self.is_running:
             current_time = dt.datetime.now()
             time_difference = self.end_time - current_time
 
-            
             if time_difference.total_seconds() <= 0:
                 self.is_running = False
                 self.toggle_timer()
@@ -76,6 +78,7 @@ class PomodoroTimer:
         self.cursor = self.conn.cursor()
         self.cursor.execute(self.sql_query)
         self.cursor.commit()
+        self.notification1.show()
 
         
     def pause_timer(self):
@@ -86,7 +89,7 @@ class PomodoroTimer:
         self.cursor = self.conn.cursor()
         self.cursor.execute(self.sql_query)
         self.cursor.commit()
-        #self.label_message.config(text="Cronômetro reiniciado")
+        self.notification2.show()
         
     def toggle_timer(self):
         if self.is_working:
